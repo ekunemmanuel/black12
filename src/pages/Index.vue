@@ -6,7 +6,7 @@
       <header class="flex justify-between items-center mb-6 md:hidden">
         <div class="user-greeting">
           <p class="text-[0.9rem] text-secondary mb-1">Hello, Welcome 👋</p>
-          <h1 class="text-2xl font-extrabold font-sans tracking-tight">Albert Stevano</h1>
+          <p class="text-2xl font-extrabold font-sans tracking-tight">Albert Stevano</p>
         </div>
         <div class="w-[50px] h-[50px] rounded-xl overflow-hidden border border-black/5 shadow-soft">
           <img src="https://i.pravatar.cc/100?u=albert" alt="User Avatar" class="w-full h-full object-cover" />
@@ -17,8 +17,8 @@
         class="mb-10 bg-primary rounded-[32px] p-8 md:p-12 relative overflow-hidden flex flex-col md:flex-row items-center gap-8 min-h-[300px] md:min-h-[400px]">
         <div class="relative z-10 flex-1 text-center md:text-left">
 
-          <h2 class="text-4xl md:text-6xl font-extrabold text-white leading-tight mb-4 uppercase">PREMIUM FINDS
-            <br /><span class="text-white/40">FROM ₦1,000</span></h2>
+          <h1 class="text-4xl md:text-6xl font-extrabold text-white leading-tight mb-4 uppercase">PREMIUM FINDS
+            <br /><span class="text-white/40">FROM ₦1,000</span></h1>
           <p class="text-white/70 mb-8 text-sm md:text-base max-w-md font-medium leading-relaxed">
             Experience high-end fashion at thrift prices. Our curated collection brings you luxury staples starting as
             low as ₦1,000.
