@@ -180,9 +180,9 @@ const allCategories = ['All Items', 'Dress', 'T-Shirt', 'Jacket', 'Knitwear']
 
 const priceRanges = [
   { label: 'All Prices', value: 'all' },
-  { label: 'Under $200', value: 'under-200' },
-  { label: '$200 - $400', value: '200-400' },
-  { label: 'Over $400', value: 'over-400' }
+  { label: 'Under ₦5,000', value: 'under-5000' },
+  { label: '₦5,000 - ₦10,000', value: '5000-10000' },
+  { label: 'Over ₦10,000', value: 'over-10000' }
 ]
 
 const sortOptions = [
@@ -212,9 +212,9 @@ const filteredProducts = computed(() => {
 
     // Price Filter
     let matchesPrice = true
-    if (priceFilter.value === 'under-200') matchesPrice = p.price < 200
-    else if (priceFilter.value === '200-400') matchesPrice = p.price >= 200 && p.price <= 400
-    else if (priceFilter.value === 'over-400') matchesPrice = p.price > 400
+    if (priceFilter.value === 'under-5000') matchesPrice = p.price < 5000
+    else if (priceFilter.value === '5000-10000') matchesPrice = p.price >= 5000 && p.price <= 10000
+    else if (priceFilter.value === 'over-10000') matchesPrice = p.price > 10000
 
     // Size Filter
     const matchesSize = selectedSizes.value.length === 0 ||
