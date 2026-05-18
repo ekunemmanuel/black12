@@ -29,6 +29,37 @@ const routes = [
         path: '/shop',
         name: 'Shop',
         component: () => import('@/pages/Shop.vue')
+    },
+    {
+        path: '/admin',
+        component: () => import('@/pages/admin/AdminLayout.vue'),
+        children: [
+            {
+                path: '',
+                name: 'AdminDashboard',
+                component: () => import('@/pages/admin/Dashboard.vue')
+            },
+            {
+                path: 'products',
+                name: 'AdminProducts',
+                component: () => import('@/pages/admin/Products.vue')
+            },
+            {
+                path: 'orders',
+                name: 'AdminOrders',
+                component: () => import('@/pages/admin/Orders.vue')
+            },
+            {
+                path: 'customers',
+                name: 'AdminCustomers',
+                component: () => import('@/pages/admin/Customers.vue')
+            },
+            {
+                path: 'payments',
+                name: 'AdminPayments',
+                component: () => import('@/pages/admin/Payments.vue')
+            }
+        ]
     }
 ]
 

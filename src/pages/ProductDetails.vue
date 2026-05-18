@@ -9,7 +9,7 @@
         <div class="relative w-full aspect-[0.9] md:aspect-[0.8] overflow-hidden md:rounded-[32px]">
           <!-- Back Button -->
           <button @click="$router.back()"
-            class="absolute top-6 left-6 w-12 h-12 flex items-center justify-center rounded-full bg-white/80 backdrop-blur-md z-10 transition-transform active:scale-95 md:hidden">
+            class="absolute top-6 left-6 w-12 h-12 flex items-center justify-center rounded-full bg-white/80 backdrop-blur-md z-10 transition-transform active:scale-95">
             <LucideChevronLeft :size="24" class="text-black" />
           </button>
 
@@ -83,14 +83,15 @@
             </div>
           </div> -->
 
-          <!-- Add to Cart (Desktop View - Inline) -->
           <div class="hidden md:block">
             <button @click="handleAddToCart"
-              class="w-full py-5 px-8 bg-primary hover:bg-black text-white rounded-premium flex items-center justify-center gap-3 transition-transform active:scale-[0.98] shadow-xl">
-              <LucideShoppingBag :size="24" />
+              :disabled="isInCart"
+              class="w-full py-5 px-8 transition-all duration-300 flex items-center justify-center gap-3 active:scale-[0.98] shadow-xl rounded-premium disabled:opacity-70 disabled:cursor-not-allowed"
+              :class="isInCart ? 'bg-green-500 text-white' : 'bg-primary hover:bg-black text-white'">
+              <component :is="isInCart ? LucideCheck : LucideShoppingBag" :size="24" class="transition-transform duration-300" :class="{ 'scale-110': isInCart }" />
               <span class="text-lg font-bold">
-                Add to Cart | ₦{{ Number(totalPrice).toLocaleString() }}
-                <span class="text-sm font-normal text-gray-400 line-through ml-2" v-if="product.originalPrice">
+                {{ isInCart ? 'Added to Cart' : `Add to Cart | ₦${Number(totalPrice).toLocaleString()}` }}
+                <span class="text-sm font-normal text-gray-400 line-through ml-2" v-if="product.originalPrice && !isInCart">
                   ₦{{ Number(originalTotalPrice).toLocaleString() }}
                 </span>
               </span>
@@ -107,11 +108,13 @@
         isScrollActive ? 'translate-y-0 opacity-100 pointer-events-auto' : 'translate-y-24 opacity-0 pointer-events-none'
       ]">
       <button @click="handleAddToCart"
-        class="w-full h-[72px] bg-[#222121] text-white rounded-[32px] flex items-center justify-center gap-3 shadow-2xl active:scale-[0.97] transition-transform">
-        <LucideShoppingBag :size="24" />
+        :disabled="isInCart"
+        class="w-full h-[72px] transition-all duration-300 rounded-[32px] flex items-center justify-center gap-3 shadow-2xl active:scale-[0.97] disabled:opacity-70"
+        :class="isInCart ? 'bg-green-500 text-white' : 'bg-[#222121] text-white'">
+        <component :is="isInCart ? LucideCheck : LucideShoppingBag" :size="24" class="transition-transform duration-300" :class="{ 'scale-110': isInCart }" />
         <span class="text-lg font-bold">
-          Add to Cart | ₦{{ Number(totalPrice).toLocaleString() }}
-          <span class="text-sm font-normal text-gray-400 line-through ml-1" v-if="product.originalPrice">
+          {{ isInCart ? 'Added to Cart' : `Add to Cart | ₦${Number(totalPrice).toLocaleString()}` }}
+          <span class="text-sm font-normal text-gray-400 line-through ml-1" v-if="product.originalPrice && !isInCart">
             ₦{{ Number(originalTotalPrice).toLocaleString() }}
           </span>
         </span>
@@ -127,8 +130,10 @@ import {
   ChevronLeft as LucideChevronLeft,
   Heart as LucideHeart,
   Star as LucideStar,
-  ShoppingBag as LucideShoppingBag
+  ShoppingBag as LucideShoppingBag,
+  Check as LucideCheck
 } from '@lucide/vue'
+import confetti from 'canvas-confetti'
 import Navbar from '@/components/Navbar.vue'
 import { store, products } from '@/store'
 
@@ -139,6 +144,16 @@ const selectedColor = ref('')
 const quantity = ref(1)
 const isExpanded = ref(false)
 const isScrollActive = ref(false)
+const isAdded = ref(false)
+
+const isInCart = computed(() => {
+  if (!product.value) return false
+  return store.cart.some(item => 
+    item.product.id === product.value?.id && 
+    item.size === selectedSize.value && 
+    item.color === selectedColor.value
+  )
+})
 
 const handleScroll = () => {
   // Trigger visibility when user starts scrolling anywhere on mobile
@@ -164,7 +179,29 @@ onUnmounted(() => {
 })
 
 const isFavorite = computed(() => product.value ? store.favorites.includes(product.value.id) : false)
-const toggleFavorite = () => { if (product.value) store.toggleFavorite(product.value.id) }
+const toggleFavorite = (event: MouseEvent) => { 
+  if (product.value) {
+    const adding = !isFavorite.value
+    store.toggleFavorite(product.value.id) 
+    
+    if (adding) {
+      const rect = (event.currentTarget as HTMLElement).getBoundingClientRect()
+      confetti({
+        particleCount: 40,
+        spread: 60,
+        origin: { 
+          x: (rect.left + rect.width / 2) / window.innerWidth,
+          y: (rect.top + rect.height / 2) / window.innerHeight 
+        },
+        colors: ['#ef4444', '#f43f5e', '#fb7185'], // Red and Rose shades
+        ticks: 150,
+        gravity: 1.5,
+        scalar: 0.7,
+        shapes: ['circle']
+      })
+    }
+  }
+}
 const truncatedDescription = computed(() => {
   if (!product.value) return ''
   // Try to match the truncation in the image
@@ -178,9 +215,28 @@ const originalTotalPrice = computed(() => {
   if (!product.value || !product.value.originalPrice) return '0.00'
   return (product.value.originalPrice * quantity.value).toFixed(2)
 })
-const handleAddToCart = () => {
-  if (product.value) {
+const handleAddToCart = (event: MouseEvent) => {
+  if (product.value && !isInCart.value) {
     store.addToCart(product.value, quantity.value, selectedSize.value, selectedColor.value)
+    
+    // Success feedback
+    isAdded.value = true
+    
+    // Confetti effect
+    const rect = (event.target as HTMLElement).getBoundingClientRect()
+    confetti({
+      particleCount: 100,
+      spread: 70,
+      origin: { 
+        x: (rect.left + rect.width / 2) / window.innerWidth,
+        y: (rect.top + rect.height / 2) / window.innerHeight 
+      },
+      colors: ['#000000', '#ffffff', '#FFD700'],
+      ticks: 200,
+      gravity: 1.2,
+      scalar: 0.8,
+      shapes: ['circle', 'square']
+    })
   }
 }
 </script>

@@ -30,6 +30,7 @@ import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { Heart as LucideHeart, Star as LucideStar } from '@lucide/vue'
 import { store, type Product } from '@/store'
+import confetti from 'canvas-confetti'
 
 const props = defineProps<{
   product: Product
@@ -39,8 +40,26 @@ const router = useRouter()
 
 const isFavorite = computed(() => store.favorites.includes(props.product.id))
 
-const toggleFavorite = () => {
+const toggleFavorite = (event: MouseEvent) => {
+  const adding = !isFavorite.value
   store.toggleFavorite(props.product.id)
+  
+  if (adding) {
+    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect()
+    confetti({
+      particleCount: 30,
+      spread: 50,
+      origin: { 
+        x: (rect.left + rect.width / 2) / window.innerWidth,
+        y: (rect.top + rect.height / 2) / window.innerHeight 
+      },
+      colors: ['#ef4444', '#f43f5e', '#fb7185'],
+      ticks: 120,
+      gravity: 1.5,
+      scalar: 0.6,
+      shapes: ['circle']
+    })
+  }
 }
 
 const goToDetails = () => {

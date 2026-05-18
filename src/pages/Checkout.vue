@@ -261,12 +261,19 @@ const subTotal = computed(() => store.cart.reduce((acc, item) => acc + (item.pro
 const grandTotal = computed(() => (subTotal.value + deliveryFee.value).toFixed(2))
 
 const processPayment = () => {
+  if (!form.value.fullName || !form.value.email || !form.value.phone) {
+    alert('Please fill in your name, email, and phone number to proceed.')
+    return
+  }
+
   isProcessing.value = true
+  
+  // Simulate network delay then save to store
   setTimeout(() => {
+    store.placeOrder({ ...form.value }, Number(grandTotal.value))
     isProcessing.value = false
     showSuccess.value = true
-    store.cart = [] // Clear cart after success
-  }, 10500)
+  }, 3500)
 }
 
 const finishCheckout = () => {

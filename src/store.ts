@@ -14,9 +14,55 @@ export interface Product {
   colors: string[];
   isNew?: boolean;
   featured?: boolean;
+  stock?: number;
 }
 
-export const products = [
+export interface Order {
+  id: string;
+  customerId: number;
+  customerName: string;
+  items: { productId: number; quantity: number; price: number }[];
+  total: number;
+  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+  date: string;
+  paymentStatus: 'paid' | 'pending' | 'failed';
+  phoneNumber: string;
+}
+
+export interface Customer {
+  id: number;
+  name: string;
+  email: string;
+  totalOrders: number;
+  totalSpent: number;
+  status: 'active' | 'inactive';
+  joinedDate: string;
+  avatar: string;
+  phoneNumber: string;
+}
+
+export interface Payment {
+  id: string;
+  orderId: string;
+  customerId: number;
+  customerName: string;
+  amount: number;
+  status: 'successful' | 'pending' | 'failed' | 'refunded';
+  method: 'Card' | 'Transfer' | 'USSD';
+  date: string;
+}
+
+export interface Notification {
+  id: string;
+  title: string;
+  message: string;
+  type: 'order' | 'payment' | 'refund' | 'system' | 'customer';
+  status: 'unread' | 'read';
+  date: string;
+  link?: string;
+}
+
+export const products = reactive<Product[]>([
   {
     id: 1,
     name: "Essential Oversized Tee",
@@ -32,6 +78,7 @@ export const products = [
     colors: ["#F5F5F5", "#1A1A1A", "#717171"],
     isNew: true,
     featured: true,
+    stock: 45,
   },
   {
     id: 2,
@@ -48,6 +95,7 @@ export const products = [
     colors: ["#F5F5F5", "#717171", "#1A1A1A"],
     isNew: true,
     featured: true,
+    stock: 22,
   },
   {
     id: 3,
@@ -64,6 +112,7 @@ export const products = [
     colors: ["#1A1A1A"],
     isNew: false,
     featured: true,
+    stock: 12,
   },
   {
     id: 4,
@@ -79,6 +128,7 @@ export const products = [
     sizes: ["S", "M", "L"],
     colors: ["#F5F5F5", "#E5E5E5"],
     isNew: false,
+    stock: 31,
   },
   {
     id: 5,
@@ -94,6 +144,7 @@ export const products = [
     sizes: ["S", "M", "L", "XL"],
     colors: ["#D2B48C", "#1A1A1A"],
     isNew: true,
+    stock: 8,
   },
   {
     id: 6,
@@ -109,6 +160,7 @@ export const products = [
     sizes: ["S", "M", "L"],
     colors: ["#4682B4", "#1A1A1A"],
     isNew: false,
+    stock: 15,
   },
   {
     id: 7,
@@ -123,6 +175,7 @@ export const products = [
     sizes: ["2Y", "4Y", "6Y"],
     colors: ["#1A1A1A", "#717171"],
     isNew: true,
+    stock: 50,
   },
   {
     id: 8,
@@ -137,8 +190,9 @@ export const products = [
     sizes: ["One Size"],
     colors: ["#E5E5E5", "#D2B48C"],
     isNew: false,
+    stock: 100,
   }
-];
+]);
 
 export const store = reactive({
   cart: [] as {
@@ -156,6 +210,131 @@ export const store = reactive({
     emailMarketing: false,
   },
 
+  // Admin Data
+  orders: [
+    {
+      id: "ORD-7721",
+      customerId: 1,
+      customerName: "Albert Stevano",
+      items: [{ productId: 1, quantity: 1, price: 3500.00 }],
+      total: 3500.00,
+      status: 'processing',
+      date: '2024-04-28',
+      paymentStatus: 'paid',
+      phoneNumber: '+234 812 345 6789'
+    },
+    {
+      id: "ORD-7722",
+      customerId: 2,
+      customerName: "Sarah Jenkins",
+      items: [{ productId: 2, quantity: 1, price: 4500.00 }],
+      total: 4500.00,
+      status: 'delivered',
+      date: '2024-04-25',
+      paymentStatus: 'paid',
+      phoneNumber: '+234 901 234 5678'
+    },
+    {
+      id: "ORD-7723",
+      customerId: 3,
+      customerName: "Michael Chen",
+      items: [{ productId: 5, quantity: 1, price: 12000.00 }],
+      total: 12000.00,
+      status: 'pending',
+      date: '2024-04-29',
+      paymentStatus: 'pending',
+      phoneNumber: '+234 703 456 7890'
+    }
+  ] as Order[],
+
+  customers: [
+    {
+      id: 1,
+      name: "Albert Stevano",
+      email: "albert@example.com",
+      totalOrders: 12,
+      totalSpent: 125000.00,
+      status: 'active',
+      joinedDate: '2023-11-15',
+      avatar: "https://i.pravatar.cc/150?u=albert",
+      phoneNumber: '+234 812 345 6789'
+    },
+    {
+      id: 2,
+      name: "Sarah Jenkins",
+      email: "sarah.j@example.com",
+      totalOrders: 5,
+      totalSpent: 45000.00,
+      status: 'active',
+      joinedDate: '2024-01-20',
+      avatar: "https://i.pravatar.cc/150?u=sarah",
+      phoneNumber: '+234 901 234 5678'
+    },
+    {
+      id: 3,
+      name: "Michael Chen",
+      email: "m.chen@example.com",
+      totalOrders: 1,
+      totalSpent: 12000.00,
+      status: 'active',
+      joinedDate: '2024-04-10',
+      avatar: "https://i.pravatar.cc/150?u=michael",
+      phoneNumber: '+234 703 456 7890'
+    }
+  ] as Customer[],
+
+  payments: [
+    {
+      id: "PAY-9901",
+      orderId: "ORD-7721",
+      customerId: 1,
+      customerName: "Albert Stevano",
+      amount: 3500.00,
+      status: 'successful',
+      method: 'Card',
+      date: '2024-04-28'
+    },
+    {
+      id: "PAY-9902",
+      orderId: "ORD-7722",
+      customerId: 2,
+      customerName: "Sarah Jenkins",
+      amount: 4500.00,
+      status: 'successful',
+      method: 'Transfer',
+      date: '2024-04-25'
+    },
+    {
+      id: "PAY-9903",
+      orderId: "ORD-7723",
+      customerId: 3,
+      customerName: "Michael Chen",
+      amount: 12000.00,
+      status: 'pending',
+      method: 'Card',
+      date: '2024-04-29'
+    }
+  ] as Payment[],
+
+  notifications: [
+    {
+      id: 'notif-1',
+      title: 'Welcome Back, Admin',
+      message: 'System is running smoothly. 3 new orders since your last login.',
+      type: 'system',
+      status: 'unread',
+      date: new Date().toISOString()
+    },
+    {
+      id: 'notif-2',
+      title: 'High Demand Alert',
+      message: 'The "Essential Oversized Tee" is running low on stock (5 left).',
+      type: 'system',
+      status: 'unread',
+      date: new Date(Date.now() - 3600000).toISOString()
+    }
+  ] as Notification[],
+
   addToCart(product: Product, quantity: number, size: string, color: string) {
     const existing = this.cart.find(
       (item) =>
@@ -164,7 +343,7 @@ export const store = reactive({
         item.color === color,
     );
     if (existing) {
-      // existing.quantity += quantity
+      existing.quantity += quantity
     } else {
       this.cart.push({ product, quantity, size, color });
     }
@@ -193,4 +372,133 @@ export const store = reactive({
       this.favorites.splice(index, 1);
     }
   },
+
+  // Admin Methods
+  deleteProduct(id: number) {
+    const index = products.findIndex(p => p.id === id);
+    if (index !== -1) products.splice(index, 1);
+  },
+
+  updateProduct(updatedProduct: Product) {
+    const index = products.findIndex(p => p.id === updatedProduct.id);
+    if (index !== -1) products[index] = updatedProduct;
+  },
+
+  addProduct(newProduct: Product) {
+    products.push({ ...newProduct, id: Date.now() });
+  },
+
+  updateOrderStatus(orderId: string, status: Order['status']) {
+    const order = this.orders.find(o => o.id === orderId);
+    if (order) {
+      order.status = status;
+      this.addNotification({
+        title: 'Order Status Updated',
+        message: `Order ${orderId} has been marked as ${status}.`,
+        type: 'order',
+        link: '/admin/orders'
+      });
+    }
+  },
+
+  refundPayment(paymentId: string) {
+    const payment = this.payments.find(p => p.id === paymentId);
+    if (payment) {
+      payment.status = 'refunded';
+      this.addNotification({
+        title: 'Refund Processed',
+        message: `A refund of ₦${payment.amount.toLocaleString()} for payment ${paymentId} has been processed.`,
+        type: 'refund',
+        link: '/admin/payments'
+      });
+    }
+  },
+
+  addNotification(notification: Omit<Notification, 'id' | 'status' | 'date'>) {
+    this.notifications.unshift({
+      ...notification,
+      id: `notif-${Math.random().toString(36).substr(2, 9)}`,
+      status: 'unread',
+      date: new Date().toISOString()
+    });
+  },
+
+  markNotificationAsRead(id: string) {
+    const notif = this.notifications.find(n => n.id === id);
+    if (notif) notif.status = 'read';
+  },
+
+  markAllNotificationsAsRead() {
+    this.notifications.forEach(n => n.status = 'read');
+  },
+
+  placeOrder(customerDetails: { fullName: string; email: string; phone: string; address: string; city: string; state: string }, total: number) {
+    const orderId = `ORD-${Math.floor(1000 + Math.random() * 9000)}`;
+    const paymentId = `PAY-${Math.floor(1000 + Math.random() * 9000)}`;
+    
+    // 1. Find or Create Customer
+    let customer = this.customers.find(c => c.email === customerDetails.email);
+    if (!customer) {
+      customer = {
+        id: this.customers.length + 1,
+        name: customerDetails.fullName,
+        email: customerDetails.email,
+        totalOrders: 0,
+        totalSpent: 0,
+        status: 'active' as const,
+        joinedDate: new Date().toISOString().split('T')[0],
+        avatar: `https://i.pravatar.cc/150?u=${customerDetails.fullName}`,
+        phoneNumber: customerDetails.phone
+      };
+      this.customers.push(customer);
+    }
+
+    // 2. Create Order
+    const newOrder: Order = {
+      id: orderId,
+      customerId: customer.id,
+      customerName: customer.name,
+      items: this.cart.map(item => ({
+        productId: item.product.id,
+        quantity: item.quantity,
+        price: item.product.price
+      })),
+      total: total,
+      status: 'pending' as const,
+      date: new Date().toISOString().split('T')[0],
+      paymentStatus: 'paid' as const,
+      phoneNumber: customerDetails.phone
+    };
+    this.orders.unshift(newOrder);
+
+    // 3. Create Payment
+    const newPayment: Payment = {
+      id: paymentId,
+      orderId: orderId,
+      customerId: customer.id,
+      customerName: customer.name,
+      amount: total,
+      status: 'successful' as const,
+      method: 'Card' as const,
+      date: new Date().toISOString().split('T')[0]
+    };
+    this.payments.unshift(newPayment);
+
+    // 4. Trigger Notification
+    this.addNotification({
+      title: 'New Order Received',
+      message: `A new order (${orderId}) has been placed by ${customerDetails.fullName}.`,
+      type: 'order',
+      link: '/admin/orders'
+    });
+
+    // 5. Update Customer Stats
+    customer.totalOrders += 1;
+    customer.totalSpent += total;
+
+    // 5. Clear Cart
+    this.cart = [];
+    
+    return orderId;
+  }
 });
